@@ -1,6 +1,6 @@
 # 2 Vorgehen und Artefakt-Roadmap
 
-> Eingeführt in V0.1 · zuletzt geändert in V0.1
+> Eingeführt in V0.1 · zuletzt geändert in V0.2 (in Arbeit)
 
 ## 2.1 Vorgehensannahme: Hybrid
 
@@ -21,4 +21,12 @@
 | Abgabe (V1.0) · 14.12.2026 | Offene Stellen geschlossen oder begründet · Änderungsprotokoll abgeschlossen | Abgabefassung | Projektgruppe 3 |
 
 ## 2.3 Eine bewusste Lücke
+
+**Lücke:** Die Anbindung an HR-Software und an einen Identity Provider (SSO).
+
+**Was wir jetzt festhalten:** Nur das Interesse der IT-Administrator:in (siehe 3.1). Im MVP werden Mitarbeiter:innen per Liste oder CSV-Import erfasst.
+
+**Warum später:** Das MVP soll prüfen, ob automatische Erinnerungen wirken (siehe 1.2). Dafür braucht es keine Integration. Eine Integration ist aufwendig und hängt von den Systemen der Auftraggeberin ab. Sie lohnt sich erst, wenn die MVP-Hypothese bestätigt ist.
+
+**Wann:** Die Schnittstellen werden in der Architektursicht beschrieben (Block 4, V0.4). Umgesetzt werden sie frühestens nach dem Pilot.
 
