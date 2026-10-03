@@ -10,11 +10,11 @@ Das Pflichtenheft ist als **Docs-as-Code** geführt. Jedes Kapitel ist eine eige
 
 | Datei | Inhalt | Eingeführt in |
 |---|---|---|
+| [`docs/00-arbeitsweise.md`](docs/00-arbeitsweise.md) | ID-Schema, Status, Baselines, Umgang mit Änderungen | V0.2 |
 | [`docs/01-vision-und-mvp.md`](docs/01-vision-und-mvp.md) | Vision, MVP-Hypothese | V0.1 |
 | [`docs/02-vorgehen-roadmap.md`](docs/02-vorgehen-roadmap.md) | Vorgehensmodell, Artefakt-Roadmap, bewusste Lücke | V0.1 |
-| [`docs/03-stakeholder.md`](docs/03-stakeholder.md) | Stakeholder und Hauptinteressen | V0.1 |
+| [`docs/03-stakeholder.md`](docs/03-stakeholder.md) | Stakeholdermap, Ermittlungsziele, Annahmen | V0.1 |
 | [`docs/06-backlog.md`](docs/06-backlog.md) | Epic → Feature → User Story | V0.1 |
-| [`docs/99-cluster-vertiefungen.md`](docs/99-cluster-vertiefungen.md) | Einzelleistungen der Gruppenmitglieder | V0.1 |
 | [`ki-review-spur.md`](ki-review-spur.md) | Alle KI-Vorschläge mit Entscheid und Begründung | V0.1 |
 | [`CHANGELOG.md`](CHANGELOG.md) | Änderungsverzeichnis mit allen Baselines | V0.1 |
 | [`archiv/`](archiv/) | Original-Abgaben als PDF | V0.1 |
@@ -42,4 +42,4 @@ Die Abgabe V0.1 war ein einzelnes Dokument (siehe [`archiv/`](archiv/)). Ihre Ab
 | 4 Initiale Zerlegung | `docs/06-backlog.md` → 6.1 |
 | 5 MVP-Hypothese | `docs/01-vision-und-mvp.md` → 1.2 |
 | 6 KI-Review-Spur V0.0 → V0.1 | `ki-review-spur.md` |
-| 7 Cluster-Vertiefung | `docs/99-cluster-vertiefungen.md` |
+| 7 Cluster-Vertiefung | nicht mehr im Repository (Einzelleistung) |
