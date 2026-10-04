@@ -29,12 +29,17 @@ Jede Baseline ist im Repository als Git-Tag gesetzt. Die Tabelle nennt pro Versi
 | Neues Kapitel 4: Event Storming als Ermittlungstechnik, KI-simuliert | 4.1 bis 4.8 | Ermittlung zu EZ-01 und EZ-02 (KR-10, KR-21, KR-23) |
 | Board und Vortragsansicht zum Event Storming als Webseiten | event-storming/ | Referat und Abgabe (KR-22, KR-24, KR-25) |
 | Verweis auf das entfernte Kapitel 99 ersetzt | 6.1 | Toter Verweis |
+| Neues Kapitel 5: Glossar mit 24 Begriffen, Status eines Nachweises und Entity-Diagramm | 5.1 bis 5.4 | Pflichtinhalt Block 2 (KR-26, KR-27) |
+| Sechs neue Stories aus dem Event Storming, Lücke aus KR-11 geschlossen | 6.1 | Quellen für Anforderungen (KR-11, KR-28) |
+| Vorwarnfrist wird von der Compliance-Manager:in festgelegt | 5.2, 6.1, FA-002 | Fachlicher Entscheid (KR-32) |
+| Neues Kapitel 7: 18 funktionale und 7 nicht-funktionale Anforderungen, 2 Qualitätsszenarien, 3 offene Anforderungen | 7.1 bis 7.4 | Pflichtinhalt Block 2 (KR-29 bis KR-31) |
 
 ### Noch offen bis zur Baseline V0.2
 
-- Glossar mit mindestens acht Begriffen (Kapitel 5). Die Begriffe aus dem Event Storming liegen bereit (siehe 4.7).
-- Mindestens sechs funktionale und vier nicht-funktionale Anforderungen mit IDs (Kapitel 7). Die Kandidaten aus dem Event Storming liegen bereit (siehe 4.7).
-- Mindestens zwei Anforderungen als «offen» mit klarer Frage. Kandidaten sind H4 (Sperre nach Ablauf) und H8 (Aufbewahrungsdauer).
-- Offene Story-Lücke aus KR-11
 - Optional: Sicht der Führungskraft mit einer echten Person prüfen (siehe 4.8)
 - Ein-Satz-Änderungsnotiz und Tag `v0.2` beim Setzen der Baseline
+
+### Verschoben auf V0.3
+
+- Akzeptanzkriterien zu den Stories. Die Artefakt-Roadmap (2.2) nennt sie für V0.2. Der Auftrag zu Block 3 verlangt sie aber erst dort, zusammen mit den Use Cases.
+- Stories aus V0.1 auf die Glossar-Begriffe umschreiben (KR-34)
