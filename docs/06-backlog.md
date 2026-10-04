@@ -18,7 +18,7 @@ Stories mit dem Vermerk **(MVP)** gehören zum MVP aus 1.2.
 - **Feature 3: Audit- & Reporting-Engine**
   - **User Story 3.1:** Als Compliance-Manager:in möchte ich mit wenigen Klicks einen vollständigen Audit-Report für eine Abteilung exportieren (PDF/Excel), um bei externen Prüfungen sofort nachweisfähig zu sein.
 
-**Vorwarnfrist:** Zeitraum vor dem Ablaufdatum, in dem CertiKeep erinnert. Standard sind 30 Tage. Die IT-Administrator:in kann die Frist anpassen (siehe 99.1, Sprint-Beitrag C).
+**Vorwarnfrist:** Zeitraum vor dem Ablaufdatum, in dem CertiKeep erinnert. Standard sind 30 Tage. Die IT-Administrator:in kann die Frist anpassen. Die passende Länge klärt Ermittlungsziel EZ-01. Das Event Storming liefert dazu einen ersten Hinweis (siehe 4.6).
 
 **Hinweis zur Nummerierung:** Story 1.3 wurde in V0.2 aus der ursprünglichen Story 1.2 abgetrennt. Bestehende Nummern bleiben unverändert (siehe KI-Review-Spur, KR-03).
 
