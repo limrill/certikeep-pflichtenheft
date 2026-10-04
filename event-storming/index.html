@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Storming CertiKeep</title>
+<meta name="description" content="Big Picture Event Storming zum Pflichtenheft CertiKeep (SWEM, Projektgruppe 3). KI-simulierter Workshop.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kraft: #c7a47a;
+    --kraft-dark: #b38d61;
+    --paper-line: rgba(60, 40, 20, .18);
+    --ink: #2b2118;
+    --ink-soft: #4f3f2f;
+    --tape: rgba(244, 236, 214, .92);
+
+    --event: #f9a64b;
+    --command: #84c6f2;
+    --actor: #fbe86c;
+    --policy: #c9adf2;
+    --view: #a9dc90;
+    --system: #f6b5c9;
+    --hotspot: #ef5f8f;
+
+    --note-ink: #1f1a15;
+    --hand: "Kalam", "Comic Sans MS", cursive;
+    --sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { background: var(--kraft); }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.5;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.10), transparent 60%),
+      repeating-linear-gradient(93deg, rgba(90,60,30,.035) 0 2px, transparent 2px 7px),
+      var(--kraft);
+    min-height: 100vh;
+  }
+
+  .page { padding: 28px 32px 40px; }
+
+  /* Kopfzeile */
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px 32px;
+    margin-bottom: 18px;
+  }
+  .title h1 {
+    margin: 0;
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: clamp(30px, 3.2vw, 46px);
+    line-height: 1.1;
+    letter-spacing: -.01em;
+  }
+  .title p {
+    margin: 6px 0 0;
+    max-width: 70ch;
+    color: var(--ink-soft);
+  }
+  .sim-note {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 12px;
+    background: var(--tape);
+    font-weight: 700;
+    font-size: 15px;
+    transform: rotate(-1deg);
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  }
+
+  .views {
+    display: inline-flex;
+    background: rgba(43,33,24,.12);
+    border-radius: 999px;
+    padding: 4px;
+  }
+  .views button {
+    font: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    padding: 9px 20px;
+    cursor: pointer;
+  }
+  .views button[aria-selected="true"] {
+    background: var(--ink);
+    color: #fbf3e4;
+  }
+  button:focus-visible, .hot:focus-visible {
+    outline: 3px solid #1d5fd1;
+    outline-offset: 3px;
+  }
+
+  /* Legende */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+  .swatch {
+    width: 22px; height: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+  }
+
+  /* Board */
+  .board-wrap { position: relative; }
+  .board-scaler { transform-origin: top left; }
+  .board {
+    width: 1800px;
+    display: grid;
+    grid-template-columns: 112px 300px 440px 440px 440px;
+    column-gap: 22px;
+    row-gap: 14px;
+    position: relative;
+  }
+  .lane-label {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+    color: var(--ink-soft);
+    align-self: center;
+    padding-right: 6px;
+  }
+  .lane-label small {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  .cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 12px;
+    min-height: 40px;
+    padding: 8px 4px;
+    border-top: 1px dashed var(--paper-line);
+  }
+  .tape-cell { border-top: 0; padding-bottom: 0; }
+  .tape {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: 22px;
+    background: var(--tape);
+    padding: 4px 16px 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    transform: rotate(-1.2deg);
+    clip-path: polygon(1% 4%, 99% 0, 100% 92%, 0 100%);
+  }
+  .timeline {
+    grid-column: 2 / -1;
+    height: 18px;
+    position: relative;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute; left: 0; right: 26px; top: 8px;
+    border-top: 2px solid var(--ink-soft);
+  }
+  .timeline::after {
+    content: "Zeit";
+    position: absolute; right: 0; top: -3px;
+    font-family: var(--hand);
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .section-sep {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-left: 2px dashed rgba(60,40,20,.28);
+  }
+
+  /* Haftnotizen */
+  .note {
+    position: relative;
+    width: 136px;
+    min-height: 104px;
+    padding: 10px 10px 12px;
+    font-family: var(--hand);
+    font-size: 17px;
+    line-height: 1.18;
+    color: var(--note-ink);
+    box-shadow: 0 6px 8px -6px rgba(0,0,0,.45), 0 1px 1px rgba(0,0,0,.12);
+    transform: rotate(var(--r, 0deg));
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: manual;
+  }
+  .note::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; height: 14px;
+    background: linear-gradient(to top, rgba(0,0,0,.06), transparent);
+  }
+  .event { background: var(--event); }
+  .event.pivot { box-shadow: 0 0 0 3px var(--ink), 0 6px 8px -6px rgba(0,0,0,.45); }
+  .event.pivot .star { font-family: var(--sans); font-size: 15px; margin-right: 2px; }
+  .branch { opacity: .92; }
+  .branch::before {
+    content: "Abzweigung";
+    display: block;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(31,26,21,.65);
+    margin-bottom: 2px;
+  }
+
+  .pair { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
+  .command { background: var(--command); width: 156px; min-height: 92px; padding-top: 18px; margin-left: 10px; }
+  .actor {
+    position: relative; z-index: 2;
+    margin-bottom: -10px;
+    background: var(--actor);
+    width: auto; min-height: 0;
+    max-width: 150px;
+    padding: 4px 8px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .actor::after { display: none; }
+
+  .policy { background: var(--policy); width: 200px; min-height: 92px; }
+  .policy b { font-weight: 700; }
+  .view { background: var(--view); width: 170px; min-height: 80px; }
+  .system { background: var(--system); width: 200px; min-height: 52px; font-weight: 700; }
+
+  .hot {
+    background: var(--hotspot);
+    width: 134px;
+    min-height: 108px;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    font-family: var(--hand);
+    font-size: 16px;
+    line-height: 1.15;
+    color: #26050f;
+    padding: 10px;
+  }
+  .hot .hid {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .hot[aria-pressed="true"] {
+    box-shadow: 0 0 0 4px var(--ink), 0 8px 10px -6px rgba(0,0,0,.5);
+  }
+
+  .detail {
+    margin-top: 22px;
+    max-width: 980px;
+    background: #fbf5e8;
+    padding: 18px 22px;
+    box-shadow: 0 8px 14px -8px rgba(0,0,0,.45);
+    border-left: 8px solid var(--hotspot);
+    min-height: 92px;
+  }
+  .detail h2 {
+    margin: 0 0 4px;
+    font-size: 21px;
+    line-height: 1.25;
+  }
+  .detail .who { margin: 0 0 6px; color: var(--ink-soft); font-size: 15px; }
+  .detail p { margin: 0; max-width: 78ch; }
+  .detail .hint { color: var(--ink-soft); }
+
+  /* Ansicht «Was wurde daraus?» */
+  .outcome-intro { max-width: 74ch; margin: 0 0 22px; }
+  .outcome {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+    align-items: start;
+  }
+  .sheet {
+    background: #fbf5e8;
+    padding: 18px 18px 14px;
+    box-shadow: 0 8px 14px -8px rgba(0,0,0,.45);
+  }
+  .sheet h2 {
+    margin: 0 0 2px;
+    font-family: var(--hand);
+    font-size: 25px;
+    line-height: 1.15;
+  }
+  .sheet .target { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
+  .sheet ul { list-style: none; margin: 0; padding: 0; }
+  .sheet li {
+    padding: 9px 0;
+    border-top: 1px solid rgba(60,40,20,.15);
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .sheet li strong { display: block; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .chip {
+    font-family: var(--hand);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 7px 3px;
+    color: var(--note-ink);
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .chip.c-event { background: var(--event); }
+  .chip.c-command { background: var(--command); }
+  .chip.c-policy { background: var(--policy); }
+  .chip.c-view { background: var(--view); }
+  .chip.c-hot { background: var(--hotspot); color: #26050f; }
+
+  .foot {
+    margin-top: 30px;
+    max-width: 90ch;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .foot a { color: var(--ink); font-weight: 700; }
+
+  [hidden] { display: none !important; }
+
+  /* Einmaliger Aufbau beim Laden */
+  @media (prefers-reduced-motion: no-preference) {
+    .board.reveal .note, .board.reveal .pair {
+      animation: stick .38s cubic-bezier(.2,.8,.3,1.2) both;
+      animation-delay: calc(var(--s, 0) * 170ms + var(--i, 0) * 18ms);
+    }
+    @keyframes stick {
+      from { opacity: 0; transform: translateY(-10px) rotate(var(--r, 0deg)) scale(1.04); }
+      to { opacity: 1; transform: rotate(var(--r, 0deg)); }
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .outcome { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 900px) {
+    .page { padding: 18px 16px 30px; }
+    .board-wrap { overflow-x: auto; }
+    .outcome { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    .views, .detail { display: none; }
+    html, body { background: var(--kraft); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="top">
+    <div class="title">
+      <h1>Event Storming: das Leben eines Nachweises</h1>
+      <p>Big Picture Event Storming zum Pflichtenheft CertiKeep, Modul SWEM an der FFHS, Projektgruppe 3.</p>
+      <span class="sim-note">KI-simulierter Workshop vom 3. Oktober 2026</span>
+    </div>
+    <div class="views" role="tablist" aria-label="Ansicht wählen">
+      <button role="tab" id="tab-board" aria-controls="view-board" aria-selected="true">Board</button>
+      <button role="tab" id="tab-outcome" aria-controls="view-outcome" aria-selected="false">Was wurde daraus?</button>
+    </div>
+  </header>
+
+  <ul class="legend" aria-label="Legende">
+    <li><span class="swatch" style="background:var(--event)"></span>Domain Event</li>
+    <li><span class="swatch" style="background:var(--actor)"></span>Actor</li>
+    <li><span class="swatch" style="background:var(--command)"></span>Command</li>
+    <li><span class="swatch" style="background:var(--policy)"></span>Policy</li>
+    <li><span class="swatch" style="background:var(--view)"></span>Read Model</li>
+    <li><span class="swatch" style="background:var(--system)"></span>External System</li>
+    <li><span class="swatch" style="background:var(--hotspot)"></span>Hotspot (anklickbar)</li>
+    <li><span class="swatch" style="background:var(--event); box-shadow:0 0 0 2px var(--ink)"></span>★ Pivotal Event</li>
+  </ul>
+
+  <section id="view-board" role="tabpanel" aria-labelledby="tab-board">
+    <div class="board-wrap" id="boardWrap">
+      <div class="board-scaler" id="boardScaler">
+        <div class="board reveal" id="board"></div>
+      </div>
+    </div>
+    <div class="detail" id="detail" aria-live="polite">
+      <p class="hint">Klicke auf einen pinken Hotspot. Hier erscheint dann die Diskussion dazu.</p>
+    </div>
+  </section>
+
+  <section id="view-outcome" role="tabpanel" aria-labelledby="tab-outcome" hidden>
+    <p class="outcome-intro">Jeder Zettel auf dem Board hat ein Ziel im Pflichtenheft. Begriffe gehen ins Glossar. Commands, Policies und Read Models werden zu funktionalen Anforderungen. Hotspots werden zu Qualitätsanforderungen, offenen Fragen oder geänderten Annahmen. Die farbigen Kärtchen zeigen, von welchem Zettel ein Eintrag stammt.</p>
+    <div class="outcome" id="outcome"></div>
+  </section>
+
+  <footer class="foot">
+    <p><strong>So ist das Board entstanden:</strong> Eine KI (Claude) hat den Workshop moderiert und sechs Rollen gespielt: Compliance-Manager:in, Führungskraft, HR, Mitarbeiter:in, IT-Administrator:in und Datenschutzberater:in. Die Ergebnisse sind Hypothesen. Sie werden mit echten Stakeholdern geprüft. Die ausführliche Dokumentation steht in <a href="https://github.com/limrill/certikeep-pflichtenheft/blob/main/docs/04-event-storming.md">Kapitel 4 des Pflichtenhefts</a>.</p>
+    <p>Wie das Board Schritt für Schritt entsteht, zeigt die <a href="vortrag.html">Vortragsansicht in vier Schritten</a>.</p>
+  </footer>
+</div>
+
+<script>
+const sections = [
+  {
+    id: "A", title: "A  Pflicht festlegen",
+    who: [
+      { actor: "Compliance-Manager:in", cmd: "Nachweis&shy;pflicht festlegen" },
+      { actor: "HR", cmd: "Eintritt erfassen" }
+    ],
+    events: [
+      { t: "Nachweis&shy;pflicht für Rolle festgelegt" },
+      { t: "Vorwarnfrist für Zertifikats&shy;art festgelegt" },
+      { t: "Mitarbeiter:in eingetreten" },
+      { t: "Rolle zugewiesen" }
+    ],
+    rules: [],
+    systems: ["HR-System"],
+    hot: ["H7"]
+  },
+  {
+    id: "B", title: "B  Nachweis erbringen",
+    who: [
+      { actor: "Mitarbeiter:in oder Führungskraft", cmd: "Zertifikat hochladen" },
+      { actor: "Compliance-Manager:in", cmd: "Zertifikat prüfen" }
+    ],
+    events: [
+      { t: "Schulung absolviert" },
+      { t: "Zertifikat ausgestellt" },
+      { t: "Zertifikat hochgeladen" },
+      { t: "Zertifikat geprüft" },
+      { t: "Nachweis freigegeben", pivot: true },
+      { t: "Nachweis abgelehnt", branch: true }
+    ],
+    rules: [
+      { type: "policy", t: "<b>Wenn</b> die Zertifikats&shy;art sicherheits&shy;kritisch ist, <b>dann</b> Prüfung durch Compliance anfordern" }
+    ],
+    systems: ["Schulungsanbieter"],
+    hot: ["H1", "H3", "H5"]
+  },
+  {
+    id: "C", title: "C  Gültigkeit überwachen",
+    who: [
+      { actor: "Führungskraft", cmd: "Erneuerungs&shy;kurs buchen" }
+    ],
+    events: [
+      { t: "Vorwarnfrist erreicht", pivot: true },
+      { t: "Erinnerung versendet" },
+      { t: "Erinnerung eskaliert" },
+      { t: "Erneuerungs&shy;kurs gebucht" },
+      { t: "Nachweis erneuert" },
+      { t: "Nachweis abgelaufen", pivot: true, branch: true }
+    ],
+    rules: [
+      { type: "policy", t: "<b>Wenn</b> die Vorwarnfrist erreicht ist, <b>dann</b> Erinnerung an Mitarbeiter:in und Führungskraft" },
+      { type: "policy", t: "<b>Wenn</b> 14 Tage vor Ablauf nicht erneuert, <b>dann</b> Eskalation an Compliance" },
+      { type: "policy", t: "<b>Wenn</b> das Ablaufdatum vorbei ist, <b>dann</b> Status «abgelaufen» und Beteiligte informieren" },
+      { type: "view", t: "Übersicht fällige Nachweise pro Team" }
+    ],
+    systems: ["E-Mail-Dienst", "Schulungsanbieter"],
+    hot: ["H2", "H4", "H6"]
+  },
+  {
+    id: "D", title: "D  Audit und Austritt",
+    who: [
+      { actor: "Externe Auditor:in", cmd: "Audit ankündigen" },
+      { actor: "Compliance-Manager:in", cmd: "Audit-Report erstellen" },
+      { actor: "HR", cmd: "Austritt erfassen" }
+    ],
+    events: [
+      { t: "Audit angekündigt" },
+      { t: "Audit-Report erstellt" },
+      { t: "Audit abgeschlossen" },
+      { t: "Mitarbeiter:in ausgetreten" },
+      { t: "Nachweis&shy;daten gelöscht" }
+    ],
+    rules: [
+      { type: "view", t: "Audit-Report pro Abteilung" },
+      { type: "policy", t: "<b>Wenn</b> die Aufbewahrungs&shy;frist vorbei ist, <b>dann</b> Nachweis&shy;daten löschen" }
+    ],
+    systems: ["HR-System"],
+    hot: ["H8"]
+  }
+];
+
+const hotspots = {
+  H1: { short: "Wer lädt hoch? Im Lager arbeitet niemand am PC.", title: "Wer lädt den Nachweis hoch?",
+        who: "Compliance-Manager:in widerspricht Mitarbeiter:in (Lager)",
+        text: "Compliance geht davon aus, dass Mitarbeiter:innen ihre Nachweise selbst hochladen. Die Mitarbeiterin aus dem Lager sagt: «Ich arbeite nicht am PC. Das Papier liegt in meinem Spind.» Heute lädt oft die Führungskraft für ihr Team hoch. Folge: Annahme A-02 ist für das Lager fraglich." },
+  H2: { short: "30 Tage Vorwarnfrist sind zu kurz.", title: "30 Tage Vorwarnfrist sind zu kurz",
+        who: "Führungskraft widerspricht der bisherigen Annahme",
+        text: "Erste-Hilfe- und Staplerkurse sind oft sechs bis acht Wochen im Voraus ausgebucht. Für kursgebundene Nachweise braucht die Führungskraft 60 bis 90 Tage. Für reine Dokumente reichen 30 Tage. Folge: Vorwarnfrist pro Zertifikats&shy;art (Ermittlungsziel EZ-01)." },
+  H3: { short: "Compliance kann nicht alles prüfen.", title: "Compliance kann nicht alles prüfen",
+        who: "Compliance-Manager:in widerspricht Story 2.2",
+        text: "Bei 200 Mitarbeiten&shy;den ist es zu viel Aufwand, jeden Nachweis einzeln zu prüfen. Compliance will nur sicherheits&shy;kritische Nachweise selbst prüfen, innerhalb von fünf Arbeitstagen. Folge: Story 2.2 wird eingeschränkt (Ermittlungsziel EZ-02)." },
+  H4: { short: "Darf man nach dem Ablauf noch arbeiten?", title: "Was passiert nach dem Ablauf?",
+        who: "Führungskraft widerspricht HR",
+        text: "Darf eine Person ohne gültigen Staplerausweis noch arbeiten? HR sagt: Das ist eine arbeitsrechtliche Entscheidung und nicht Aufgabe der Software. Die Führungskraft möchte, dass CertiKeep eine Sperre zumindest anzeigt. Folge: offene Frage." },
+  H5: { short: "Tauglichkeits&shy;nachweise enthalten Gesundheits&shy;daten.", title: "Gesundheits&shy;daten in Tauglichkeits&shy;nachweisen",
+        who: "Datenschutzberater:in widerspricht Compliance-Manager:in",
+        text: "Ein arbeitsmedizinischer Befund ist ein besonders schützenswertes Personendatum. Die Datenschutzberaterin will nur speichern, ob eine Person tauglich ist und bis wann. Den Befund selbst will sie nicht im System. Folge: Annahme A-04 ist ein echtes Risiko." },
+  H6: { short: "Im Lager hat kaum jemand eine Firmen-E-Mail.", title: "Keine geschäftliche E-Mail im Lager",
+        who: "Mitarbeiter:in (Lager) widerspricht der Vision",
+        text: "Viele Lagermitarbeitende haben keine Firmen-E-Mail. Eine Erinnerung per E-Mail erreicht sie nicht. Folge: Die Erinnerung muss auch an die Führungskraft gehen. Ein zweiter Kanal ist zu prüfen (Annahme A-03)." },
+  H7: { short: "Zertifikat, Nachweis, Qualifikation: alle meinen etwas anderes.", title: "Zertifikat, Nachweis, Qualifikation",
+        who: "Alle Rollen",
+        text: "Die Rollen verwenden die Begriffe durcheinander. Am Ende gilt: Das Zertifikat ist das Dokument des Ausstellers. Der Nachweis ist der Eintrag in CertiKeep, mit Zertifikat, Zertifikats&shy;art und Ablaufdatum. Folge: Diese Begriffe kommen ins Glossar." },
+  H8: { short: "Aufbewahren oder löschen? Und wie lange?", title: "Aufbewahren oder löschen?",
+        who: "Datenschutzberater:in widerspricht Compliance-Manager:in",
+        text: "Datenschutz will die Daten nach dem Austritt rasch löschen. Compliance will sie für spätere Audits aufbewahren. Wie lange, ist offen. Folge: offene Frage, die Antwort kommt aus der Dokumentenanalyse (Ermittlungsziel EZ-03)." }
+};
+
+const outcome = [
+  {
+    title: "Glossar", target: "Kapitel 5",
+    items: [
+      { t: "Nachweis", src: [["H7","hot"]] },
+      { t: "Zertifikat", src: [["H7","hot"]] },
+      { t: "Zertifikats&shy;art", src: [["Event A","event"], ["H2","hot"]] },
+      { t: "Nachweis&shy;pflicht", src: [["Command A","command"]] },
+      { t: "Ablaufdatum", src: [["Event C","event"]] },
+      { t: "Vorwarnfrist", src: [["Event A","event"], ["H2","hot"]] },
+      { t: "Erinnerung und Eskalation", src: [["Policy C","policy"]] },
+      { t: "Freigabe", src: [["Event B","event"], ["H3","hot"]] },
+      { t: "Audit-Report", src: [["Read Model D","view"]] },
+      { t: "Aufbewahrungs&shy;frist", src: [["Policy D","policy"], ["H8","hot"]] }
+    ]
+  },
+  {
+    title: "Funktionale Anforderungen", target: "Kapitel 7, Kandidaten",
+    items: [
+      { t: "Nachweis&shy;pflicht pro Rolle hinterlegen", src: [["Command A","command"]] },
+      { t: "Nachweis mit Zertifikats&shy;art und Ablaufdatum erfassen, auch durch die Führungskraft", src: [["Command B","command"], ["H1","hot"]] },
+      { t: "Sicherheitskritische Nachweise zur Prüfung vorlegen", src: [["Policy B","policy"], ["H3","hot"]] },
+      { t: "Bei Erreichen der Vorwarnfrist an Mitarbeiter:in und Führungskraft erinnern", src: [["Policy C","policy"], ["H6","hot"]] },
+      { t: "14 Tage vor Ablauf an Compliance eskalieren", src: [["Policy C","policy"]] },
+      { t: "Status «abgelaufen» setzen und informieren", src: [["Policy C","policy"]] },
+      { t: "Fällige Nachweise pro Team anzeigen", src: [["Read Model C","view"]] },
+      { t: "Audit-Report pro Abteilung erstellen", src: [["Read Model D","view"]] },
+      { t: "Nachweis&shy;daten nach Ablauf der Aufbewahrungs&shy;frist löschen", src: [["Policy D","policy"], ["H8","hot"]] }
+    ]
+  },
+  {
+    title: "Qualitätsanforderungen", target: "Kapitel 7, Kandidaten",
+    items: [
+      { t: "Zuverlässigkeit: Jede Erinnerung kommt sicher an", src: [["H6","hot"]] },
+      { t: "Datenminimierung: Bei Tauglichkeit nur Ergebnis und Gültigkeit speichern", src: [["H5","hot"]] },
+      { t: "Aufbewahrung und Löschung nach festen Fristen", src: [["H8","hot"]] },
+      { t: "Nachvollziehbarkeit: Jede Freigabe ist protokolliert", src: [["Event B","event"]] },
+      { t: "Auditfähigkeit: Der Report liegt rasch vor", src: [["Read Model D","view"]] }
+    ]
+  },
+  {
+    title: "Offene Fragen und Annahmen", target: "Kapitel 3 und 7",
+    items: [
+      { t: "Vorwarnfrist pro Zertifikats&shy;art: 60 bis 90 Tage für Kurse (vorläufig)", src: [["H2","hot"]], note: "EZ-01" },
+      { t: "Compliance prüft nur sicherheits&shy;kritische Nachweise (vorläufig)", src: [["H3","hot"]], note: "EZ-02" },
+      { t: "Annahme A-02 fraglich: Im Lager lädt die Führungskraft hoch", src: [["H1","hot"]] },
+      { t: "Annahme A-03 bestätigt sich als Risiko", src: [["H6","hot"]] },
+      { t: "Annahme A-04 bestätigt sich als Risiko", src: [["H5","hot"]] },
+      { t: "Offen: Soll CertiKeep nach dem Ablauf eine Sperre anzeigen?", src: [["H4","hot"]] },
+      { t: "Offen: Wie lange werden Nachweise aufbewahrt?", src: [["H8","hot"]], note: "EZ-03" }
+    ]
+  }
+];
+
+/* Board aufbauen */
+const board = document.getElementById("board");
+let n = 0;
+const tilt = () => { n++; return ((n * 37) % 9 - 4) * 0.55 + "deg"; };
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+function note(cls, html, s, i) {
+  const d = el("div", "note " + cls, html);
+  d.style.setProperty("--r", tilt());
+  d.style.setProperty("--s", s);
+  d.style.setProperty("--i", i);
+  return d;
+}
+
+const lanes = [
+  { key: "tape", label: "" },
+  { key: "who", label: "Actor + Command", sub: "Wer löst aus?" },
+  { key: "events", label: "Domain Events", sub: "Was ist passiert?" },
+  { key: "rules", label: "Policies + Read Models", sub: "Was folgt daraus?" },
+  { key: "systems", label: "External Systems", sub: "Wer ist ausserhalb beteiligt?" },
+  { key: "hot", label: "Hotspots", sub: "Wo hakt es?" }
+];
+
+lanes.forEach(lane => {
+  const lab = el("div", "lane-label");
+  if (lane.label) lab.innerHTML = lane.label + (lane.sub ? "<small>" + lane.sub + "</small>" : "");
+  board.appendChild(lab);
+
+  sections.forEach((sec, s) => {
+    const cell = el("div", "cell");
+    if (lane.key === "tape") {
+      cell.classList.add("tape-cell");
+      cell.appendChild(el("div", "tape", sec.title.replace("  ", " ")));
+    }
+    if (lane.key === "who") sec.who.forEach((w, i) => {
+      const p = el("div", "pair");
+      p.style.setProperty("--s", s); p.style.setProperty("--i", i);
+      const a = el("div", "note actor", w.actor); a.style.setProperty("--r", tilt());
+      const c = el("div", "note command", w.cmd); c.style.setProperty("--r", tilt());
+      p.append(a, c);
+      cell.appendChild(p);
+    });
+    if (lane.key === "events") sec.events.forEach((e, i) => {
+      const cls = "event" + (e.pivot ? " pivot" : "") + (e.branch ? " branch" : "");
+      const html = (e.pivot ? '<span class="star" aria-label="Pivotal Event">★</span>' : "") + e.t;
+      cell.appendChild(note(cls, html, s, i + 2));
+    });
+    if (lane.key === "rules") sec.rules.forEach((r, i) => cell.appendChild(note(r.type, r.t, s, i + 8)));
+    if (lane.key === "systems") sec.systems.forEach((t, i) => cell.appendChild(note("system", t, s, i + 11)));
+    if (lane.key === "hot") sec.hot.forEach((id, i) => {
+      const b = el("button", "note hot", '<span class="hid">' + id + "</span>" + hotspots[id].short);
+      b.type = "button";
+      b.setAttribute("aria-pressed", "false");
+      b.dataset.id = id;
+      b.style.setProperty("--r", tilt());
+      b.style.setProperty("--s", s); b.style.setProperty("--i", i + 13);
+      cell.appendChild(b);
+    });
+    board.appendChild(cell);
+  });
+
+  if (lane.key === "tape") {
+    board.appendChild(el("div", "lane-label"));
+    const tl = el("div", "timeline"); tl.setAttribute("aria-hidden", "true");
+    board.appendChild(tl);
+  }
+});
+
+/* Trennlinien zwischen den Abschnitten */
+function placeSeparators() {
+  board.querySelectorAll(".section-sep").forEach(x => x.remove());
+  const cols = [112, 300, 440, 440, 440], gap = 22;
+  let x = cols[0] + gap;
+  for (let i = 1; i < cols.length - 1; i++) {
+    x += cols[i] + gap / 2;
+    const sep = el("div", "section-sep");
+    sep.style.left = x + "px";
+    sep.setAttribute("aria-hidden", "true");
+    board.appendChild(sep);
+    x += gap / 2;
+  }
+}
+placeSeparators();
+
+/* Hotspot-Details */
+const detail = document.getElementById("detail");
+board.addEventListener("click", ev => {
+  const b = ev.target.closest(".hot");
+  if (!b) return;
+  board.querySelectorAll(".hot").forEach(h => h.setAttribute("aria-pressed", h === b ? "true" : "false"));
+  const h = hotspots[b.dataset.id];
+  detail.innerHTML = "<h2>" + b.dataset.id + ": " + h.title + "</h2><p class=\"who\">" + h.who + "</p><p>" + h.text + "</p>";
+});
+
+/* Board an die Breite anpassen */
+const wrap = document.getElementById("boardWrap");
+const scaler = document.getElementById("boardScaler");
+function fit() {
+  const w = wrap.clientWidth;
+  if (w < 900) { scaler.style.transform = ""; wrap.style.height = ""; return; }
+  const k = Math.min(1.3, w / 1800);
+  scaler.style.transform = "scale(" + k + ")";
+  wrap.style.height = (board.offsetHeight * k) + "px";
+}
+window.addEventListener("resize", fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+setTimeout(() => board.classList.remove("reveal"), 2500);
+
+/* Ansicht «Was wurde daraus?» */
+const out = document.getElementById("outcome");
+outcome.forEach(col => {
+  const sh = el("article", "sheet");
+  sh.appendChild(el("h2", "", col.title));
+  sh.appendChild(el("p", "target", "Ziel: " + col.target));
+  const ul = el("ul");
+  col.items.forEach(it => {
+    const li = el("li");
+    li.appendChild(el("span", "", it.t + (it.note ? " <em>(" + it.note + ")</em>" : "")));
+    const chips = el("div", "chips");
+    it.src.forEach(([label, type]) => {
+      const c = el("span", "chip c-" + type, label);
+      chips.appendChild(c);
+    });
+    li.appendChild(chips);
+    ul.appendChild(li);
+  });
+  sh.appendChild(ul);
+  out.appendChild(sh);
+});
+
+/* Umschalten zwischen den Ansichten */
+const tabs = [document.getElementById("tab-board"), document.getElementById("tab-outcome")];
+const panels = [document.getElementById("view-board"), document.getElementById("view-outcome")];
+tabs.forEach((t, i) => t.addEventListener("click", () => {
+  tabs.forEach((x, j) => x.setAttribute("aria-selected", i === j ? "true" : "false"));
+  panels.forEach((p, j) => p.hidden = i !== j);
+  if (i === 0) fit();
+}));
+</script>
+</body>
+</html>

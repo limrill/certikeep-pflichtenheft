@@ -14,12 +14,19 @@ Das Pflichtenheft ist als **Docs-as-Code** geführt. Jedes Kapitel ist eine eige
 | [`docs/01-vision-und-mvp.md`](docs/01-vision-und-mvp.md) | Vision, MVP-Hypothese | V0.1 |
 | [`docs/02-vorgehen-roadmap.md`](docs/02-vorgehen-roadmap.md) | Vorgehensmodell, Artefakt-Roadmap, bewusste Lücke | V0.1 |
 | [`docs/03-stakeholder.md`](docs/03-stakeholder.md) | Stakeholdermap, Ermittlungsziele, Annahmen | V0.1 |
+| [`docs/04-event-storming.md`](docs/04-event-storming.md) | Ermittlung mit Event Storming (KI-simuliert) | V0.2 |
 | [`docs/06-backlog.md`](docs/06-backlog.md) | Epic → Feature → User Story | V0.1 |
 | [`ki-review-spur.md`](ki-review-spur.md) | Alle KI-Vorschläge mit Entscheid und Begründung | V0.1 |
 | [`CHANGELOG.md`](CHANGELOG.md) | Änderungsverzeichnis mit allen Baselines | V0.1 |
+| [`event-storming/`](event-storming/) | Board und Vortragsansicht zum Event Storming als Webseiten, dazu Bilder | V0.2 |
 | [`archiv/`](archiv/) | Original-Abgaben als PDF | V0.1 |
 
-Die Lücken in der Nummerierung sind Absicht. Die Kapitel 04, 05 und 07 folgen in V0.2. Die Nummern bleiben stabil, auch wenn ein Kapitel später dazukommt.
+Die Lücken in der Nummerierung sind Absicht. Die Kapitel 05 und 07 folgen in V0.2. Die Nummern bleiben stabil, auch wenn ein Kapitel später dazukommt.
+
+## Event Storming online
+
+- [Board mit Hotspots](https://limrill.github.io/certikeep-pflichtenheft/event-storming/)
+- [Vortragsansicht in vier Schritten](https://limrill.github.io/certikeep-pflichtenheft/event-storming/vortrag.html)
 
 ## Baselines und Änderungen
 

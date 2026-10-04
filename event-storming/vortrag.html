@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Storming in vier Schritten</title>
+<meta name="description" content="Vortragsansicht: Big Picture Event Storming am Beispiel CertiKeep, Schritt für Schritt. KI-simulierter Workshop.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kraft: #c7a47a;
+    --ink: #2b2118;
+    --ink-soft: #4f3f2f;
+    --tape: rgba(244, 236, 214, .94);
+    --event: #f9a64b;
+    --command: #84c6f2;
+    --actor: #fbe86c;
+    --system: #f6b5c9;
+    --note-ink: #1f1a15;
+    --hand: "Kalam", "Comic Sans MS", cursive;
+    --sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --move: .9s cubic-bezier(.25,.8,.25,1);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.10), transparent 60%),
+      repeating-linear-gradient(93deg, rgba(90,60,30,.035) 0 2px, transparent 2px 7px),
+      var(--kraft);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 18px 28px 6px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 24px;
+    align-items: start;
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--hand);
+    font-size: clamp(22px, 2.2vw, 32px);
+    line-height: 1.1;
+  }
+  .sim-note {
+    justify-self: end;
+    padding: 3px 12px;
+    background: var(--tape);
+    font-weight: 700;
+    font-size: 14px;
+    transform: rotate(1deg);
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  }
+
+  ol.steps {
+    grid-column: 1 / -1;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  ol.steps button {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    background: rgba(43,33,24,.10);
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 16px 7px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  ol.steps .num {
+    display: inline-grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(43,33,24,.18);
+    font-size: 13px;
+  }
+  ol.steps button[aria-current="step"] { background: var(--ink); color: #fbf3e4; }
+  ol.steps button[aria-current="step"] .num { background: var(--event); color: var(--note-ink); }
+  ol.steps button.done .num { background: var(--ink); color: #fbf3e4; }
+
+  .caption {
+    grid-column: 1 / -1;
+    margin: 10px 0 0;
+    max-width: 92ch;
+    font-size: clamp(16px, 1.25vw, 20px);
+    line-height: 1.45;
+    min-height: 2.9em;
+  }
+  .caption strong { font-weight: 700; }
+
+  main { flex: 1; position: relative; min-height: 0; }
+  .stage-wrap { position: absolute; inset: 0 20px; }
+  .stage {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1740px;
+    height: 660px;
+    transform-origin: top center;
+  }
+
+  .note {
+    position: absolute;
+    left: 0; top: 0;
+    width: 136px;
+    min-height: 112px;
+    padding: 10px 10px 12px;
+    font-family: var(--hand);
+    font-size: 18px;
+    line-height: 1.15;
+    color: var(--note-ink);
+    box-shadow: 0 6px 8px -6px rgba(0,0,0,.45), 0 1px 1px rgba(0,0,0,.12);
+    hyphens: manual;
+    transition: left var(--move), top var(--move), transform var(--move), opacity .6s ease, box-shadow .4s ease;
+    will-change: left, top, transform;
+  }
+  .event { background: var(--event); }
+  .event.pivot-on { box-shadow: 0 0 0 3px var(--ink), 0 6px 8px -6px rgba(0,0,0,.45); }
+  .event .star { font-family: var(--sans); font-size: 15px; display: none; }
+  .event.pivot-on .star { display: inline; }
+  .command { background: var(--command); width: 140px; min-height: 84px; padding-top: 18px; }
+  .actor {
+    background: var(--actor);
+    width: auto; min-height: 0;
+    max-width: 140px;
+    padding: 4px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    z-index: 2;
+  }
+  .system { background: var(--system); width: 200px; min-height: 50px; font-weight: 700; }
+  .gone { opacity: 0; pointer-events: none; }
+
+  .tape {
+    position: absolute;
+    top: 0;
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: 23px;
+    background: var(--tape);
+    padding: 4px 16px 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    transform: rotate(-1.2deg);
+    transition: opacity .6s ease .3s;
+  }
+  .sep {
+    position: absolute;
+    top: 0; height: 640px;
+    border-left: 2px dashed rgba(60,40,20,.32);
+    transition: opacity .6s ease .3s;
+  }
+  .timeline {
+    position: absolute;
+    left: 20px; right: 0; top: 232px;
+    border-top: 2px solid var(--ink-soft);
+    transition: opacity .6s ease;
+  }
+  .timeline::after {
+    content: "Zeit";
+    position: absolute; right: 0; top: -26px;
+    font-family: var(--hand); font-weight: 700; color: var(--ink-soft);
+  }
+  .off { opacity: 0; }
+
+  footer {
+    padding: 10px 28px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  footer button, footer a {
+    font: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    background: rgba(43,33,24,.12);
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 18px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  footer .primary { background: var(--ink); color: #fbf3e4; }
+  footer button:disabled { opacity: .4; cursor: default; }
+  footer .keys { font-size: 13px; color: var(--ink-soft); }
+  .legend { list-style: none; margin: 0 0 0 auto; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+  .legend li { display: flex; align-items: center; gap: 7px; }
+  .sw { width: 18px; height: 15px; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  button:focus-visible, a:focus-visible { outline: 3px solid #1d5fd1; outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note, .tape, .sep, .timeline { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Event Storming in vier Schritten, am Beispiel CertiKeep</h1>
+  <span class="sim-note">KI-simulierter Workshop</span>
+  <ol class="steps" id="steps"></ol>
+  <p class="caption" id="caption" aria-live="polite"></p>
+</header>
+
+<main>
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage"></div>
+  </div>
+</main>
+
+<footer>
+  <button type="button" id="prev">Zurück</button>
+  <button type="button" id="next" class="primary">Weiter</button>
+  <a href="index.html" id="full" hidden>Ganzes Board mit Hotspots öffnen</a>
+  <button type="button" id="fs">Vollbild</button>
+  <ul class="legend" aria-label="Legende">
+    <li><span class="sw" style="background:var(--event)"></span>Domain Event</li>
+    <li><span class="sw" style="background:var(--event); box-shadow:0 0 0 2px var(--ink)"></span>★ Pivotal Event</li>
+    <li><span class="sw" style="background:var(--actor)"></span>Actor</li>
+    <li><span class="sw" style="background:var(--command)"></span>Command</li>
+    <li><span class="sw" style="background:var(--system)"></span>External System</li>
+  </ul>
+  <span class="keys">Pfeiltasten, Leertaste oder Presenter-Klicker</span>
+</footer>
+
+<script>
+const STEPS = [
+  { name: "Chaotic Exploration",
+    text: "Alle schreiben gleichzeitig <strong>Domain Events</strong> auf orange Zettel, in der Vergangenheitsform. Es gibt noch keine Ordnung und keine Diskussion. Doppelte Zettel und Synonyme sind ausdrücklich erlaubt." },
+  { name: "Enforcing the Timeline",
+    text: "Die Gruppe schiebt die Zettel von links nach rechts in eine zeitliche Reihenfolge. Doppelte und Synonyme werden zusammengelegt, zum Beispiel «Nachweis eingereicht» und «Zertifikat hochgeladen»." },
+  { name: "Pivotal Events",
+    text: "Einige Ereignisse verändern alles, was danach kommt. Diese <strong>Pivotal Events</strong> (★) helfen, den Zeitstrahl in Abschnitte zu gliedern." },
+  { name: "People and Systems",
+    text: "Jetzt kommen die <strong>Actors</strong> mit ihren <strong>Commands</strong> dazu und die <strong>External Systems</strong>. Damit ist sichtbar, wer welches Ereignis auslöst. Danach folgen Hotspots, Policies und Read Models." }
+];
+
+/* Abschnitte: gleiche Geometrie wie das ganze Board */
+const SECTIONS = [
+  { id: "A", title: "A Pflicht festlegen", x: 20, w: 300, cols: 2 },
+  { id: "B", title: "B Nachweis erbringen", x: 342, w: 440, cols: 3 },
+  { id: "C", title: "C Gültigkeit überwachen", x: 804, w: 440, cols: 3 },
+  { id: "D", title: "D Audit und Austritt", x: 1266, w: 440, cols: 3 }
+];
+
+const EVENTS = [
+  ["A1","A","Nachweis&shy;pflicht für Rolle festgelegt"],
+  ["A2","A","Vorwarnfrist für Zertifikats&shy;art festgelegt"],
+  ["A3","A","Mitarbeiter:in eingetreten"],
+  ["A4","A","Rolle zugewiesen"],
+  ["B1","B","Schulung absolviert"],
+  ["B2","B","Zertifikat ausgestellt"],
+  ["B3","B","Zertifikat hochgeladen"],
+  ["B4","B","Zertifikat geprüft"],
+  ["B5","B","Nachweis freigegeben", true],
+  ["B6","B","Nachweis abgelehnt"],
+  ["C1","C","Vorwarnfrist erreicht", true],
+  ["C2","C","Erinnerung versendet"],
+  ["C3","C","Erinnerung eskaliert"],
+  ["C4","C","Erneuerungs&shy;kurs gebucht"],
+  ["C5","C","Nachweis erneuert"],
+  ["C6","C","Nachweis abgelaufen", true],
+  ["D1","D","Audit angekündigt"],
+  ["D2","D","Audit-Report erstellt"],
+  ["D3","D","Audit abgeschlossen"],
+  ["D4","D","Mitarbeiter:in ausgetreten"],
+  ["D5","D","Nachweis&shy;daten gelöscht"]
+];
+
+/* Doppelte und Synonyme aus der chaotischen Sammlung: [Text, Zwilling] */
+const DUPES = [
+  ["Nachweis eingereicht", "B3"],
+  ["Kurs besucht", "B1"],
+  ["Ausweis abgelaufen", "C6"],
+  ["Neuer Mitarbeiter gestartet", "A3"],
+  ["Mail wegen Ablauf verschickt", "C2"],
+  ["Report für Auditor gezogen", "D2"]
+];
+
+const PAIRS = [
+  ["A", "Compliance-Manager:in", "Nachweis&shy;pflicht festlegen"],
+  ["A", "HR", "Eintritt erfassen"],
+  ["B", "Mitarbeiter:in oder Führungskraft", "Zertifikat hochladen"],
+  ["B", "Compliance-Manager:in", "Zertifikat prüfen"],
+  ["C", "Führungskraft", "Erneuerungs&shy;kurs buchen"],
+  ["D", "Externe Auditor:in", "Audit ankündigen"],
+  ["D", "Compliance-Manager:in", "Audit-Report erstellen"],
+  ["D", "HR", "Austritt erfassen"]
+];
+const SYSTEMS = [["A","HR-System"],["B","Schulungsanbieter"],["C","E-Mail-Dienst"],["C","Schulungsanbieter"],["D","HR-System"]];
+
+const stage = document.getElementById("stage");
+const secOf = id => SECTIONS.find(s => s.id === id);
+const mk = (cls, html) => { const d = document.createElement("div"); d.className = cls; d.innerHTML = html; stage.appendChild(d); return d; };
+
+/* Pseudozufall, damit die chaotische Wand bei jedem Laden gleich aussieht */
+let seed = 7;
+const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+
+/* Geordnete Positionen der Ereignisse */
+const EV_Y = 262, NOTE_W = 136, NOTE_H = 112, GAP_X = 12, GAP_Y = 16;
+const ordered = {};
+SECTIONS.forEach(s => {
+  EVENTS.filter(e => e[1] === s.id).forEach((e, i) => {
+    const col = i % s.cols, row = Math.floor(i / s.cols);
+    ordered[e[0]] = { x: s.x + 4 + col * (NOTE_W + GAP_X), y: EV_Y + row * (NOTE_H + GAP_Y) };
+  });
+});
+
+/* Chaotische Positionen: verwürfeltes Raster mit Zufallsversatz */
+const all = EVENTS.length + DUPES.length;
+const cells = [];
+const C = 9, R = 3;
+for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) cells.push([c, r]);
+for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+const chaos = [];
+for (let i = 0; i < all; i++) {
+  const [c, r] = cells[i];
+  chaos.push({ x: 30 + c * 188 + (rnd() - .5) * 46, y: 20 + r * 212 + (rnd() - .5) * 50, r: (rnd() - .5) * 16 });
+}
+
+/* Zettel erzeugen */
+const notes = [];
+EVENTS.forEach((e, i) => {
+  const el = mk("note event", '<span class="star" aria-hidden="true">★ </span>' + e[2]);
+  notes.push({ el, kind: "event", id: e[0], pivot: !!e[3], chaos: chaos[i], tilt: ((i * 37) % 9 - 4) * .5 });
+});
+DUPES.forEach((d, i) => {
+  const el = mk("note event", d[0]);
+  notes.push({ el, kind: "dupe", twin: d[1], chaos: chaos[EVENTS.length + i] });
+});
+
+/* Actors, Commands und External Systems für Schritt 4 */
+const pairEls = [];
+SECTIONS.forEach(s => {
+  PAIRS.filter(p => p[0] === s.id).forEach((p, i) => {
+    const x = s.x + 4 + i * (140 + 10);
+    const cmd = mk("note command", p[2]);
+    const act = mk("note actor", p[1]);
+    pairEls.push({ cmd, act, x, y: 86 });
+  });
+});
+const sysEls = [];
+SECTIONS.forEach(s => {
+  SYSTEMS.filter(x => x[0] === s.id).forEach((x, i) => {
+    sysEls.push({ el: mk("note system", x[1]), x: s.x + 4 + i * 212, y: 532 });
+  });
+});
+
+/* Gerüst: Zeitlinie, Abschnittstitel, Trennlinien, Bahnen */
+const timeline = mk("timeline", "");
+const tapes = SECTIONS.map(s => { const t = mk("tape", s.title); t.style.left = (s.x + 4) + "px"; return t; });
+const seps = SECTIONS.slice(1).map(s => { const d = mk("sep", ""); d.style.left = (s.x - 11) + "px"; return d; });
+
+function place(el, x, y, rot) {
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  el.style.transform = "rotate(" + rot + "deg)";
+}
+
+/* Schritte anzeigen */
+let step = 0;
+function render() {
+  const s = step;
+  notes.forEach(n => {
+    if (s === 0) {
+      place(n.el, n.chaos.x, n.chaos.y, n.chaos.r);
+      n.el.classList.remove("gone", "pivot-on");
+    } else if (n.kind === "event") {
+      const p = ordered[n.id];
+      place(n.el, p.x, p.y, n.tilt);
+      n.el.classList.toggle("pivot-on", s >= 2 && n.pivot);
+    } else {
+      const p = ordered[n.twin];
+      place(n.el, p.x + 6, p.y + 6, 2);
+      n.el.classList.add("gone");
+    }
+  });
+  timeline.classList.toggle("off", s < 1);
+  tapes.forEach(t => t.classList.toggle("off", s < 2));
+  seps.forEach(t => t.classList.toggle("off", s < 2));
+  pairEls.forEach((p, i) => {
+    place(p.act, p.x, p.y - 26, -1.5 + (i % 3));
+    place(p.cmd, p.x + 8, p.y + 12, (i % 2 ? 1 : -1));
+    p.act.classList.toggle("gone", s < 3);
+    p.cmd.classList.toggle("gone", s < 3);
+  });
+  sysEls.forEach((x, i) => { place(x.el, x.x, x.y, i % 2 ? 1 : -1); x.el.classList.toggle("gone", s < 3); });
+
+  document.getElementById("caption").innerHTML = STEPS[s].text;
+  stepBtns.forEach((b, i) => {
+    b.toggleAttribute("aria-current", false);
+    if (i === s) b.setAttribute("aria-current", "step");
+    b.classList.toggle("done", i < s);
+  });
+  document.getElementById("prev").disabled = s === 0;
+  document.getElementById("next").hidden = s === STEPS.length - 1;
+  document.getElementById("full").hidden = s !== STEPS.length - 1;
+  history.replaceState(null, "", "#" + (s + 1));
+}
+
+/* Schrittleiste */
+const ol = document.getElementById("steps");
+const stepBtns = STEPS.map((st, i) => {
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.type = "button";
+  b.innerHTML = '<span class="num">' + (i + 1) + "</span>" + st.name;
+  b.addEventListener("click", () => { step = i; render(); });
+  li.appendChild(b); ol.appendChild(li);
+  return b;
+});
+
+const go = d => { const n = Math.max(0, Math.min(STEPS.length - 1, step + d)); if (n !== step) { step = n; render(); } };
+document.getElementById("next").addEventListener("click", () => go(1));
+document.getElementById("prev").addEventListener("click", () => go(-1));
+document.getElementById("fs").addEventListener("click", () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  else document.exitFullscreen && document.exitFullscreen();
+});
+document.addEventListener("keydown", e => {
+  const onButton = e.target instanceof HTMLButtonElement || e.target instanceof HTMLAnchorElement;
+  if ((e.key === " " || e.key === "Enter") && onButton) return;
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") { step = 0; render(); }
+  if (e.key === "End") { step = STEPS.length - 1; render(); }
+  if (e.key === "f") document.getElementById("fs").click();
+});
+
+/* Bühne an das Fenster anpassen */
+const wrap = document.getElementById("wrap");
+function fit() {
+  const k = Math.min(wrap.clientWidth / 1740, wrap.clientHeight / 660);
+  stage.style.transform = "translateX(-50%) scale(" + k + ")";
+}
+window.addEventListener("resize", fit);
+document.fonts && document.fonts.ready.then(fit);
+
+const fromHash = parseInt(location.hash.slice(1), 10);
+if (fromHash >= 1 && fromHash <= STEPS.length) step = fromHash - 1;
+
+/* Erste Darstellung ohne Animation */
+document.querySelectorAll(".note").forEach(n => n.style.transition = "none");
+render(); fit();
+requestAnimationFrame(() => requestAnimationFrame(() =>
+  document.querySelectorAll(".note").forEach(n => n.style.transition = "")));
+</script>
+</body>
+</html>

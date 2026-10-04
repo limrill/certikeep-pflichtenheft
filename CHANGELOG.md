@@ -22,14 +22,19 @@ Jede Baseline ist im Repository als Git-Tag gesetzt. Die Tabelle nennt pro Versi
 | Bewusste Lücke ergänzt | 2.3 | Pflichtinhalt fehlte (KR-06) |
 | KI-Review-Spur ergänzt | ki-review-spur.md | Abschnitt war leer |
 | Tippfehler korrigiert («Steakholder», «Ablaufsdatum», «missverstanden haben») | 3.1, 6.1, 99.1 | Sprachliche Korrektheit |
+| Cluster-Vertiefung aus dem Repository entfernt | 99.1 | Einzelleistung, gehört nicht ins Gruppen-Pflichtenheft |
+| Stakeholdermap auf neun Stakeholder erweitert, mit Einfluss, Interesse und Quadrant | 3.1, 3.2 | Pflichtinhalt Block 2 (KR-14 bis KR-16) |
+| Drei Ermittlungsziele und fünf Annahmen mit Risiko ergänzt | 3.3, 3.4 | Pflichtinhalt Block 2 (KR-17, KR-18, KR-20) |
+| Neues Kapitel 0: ID-Schema, Status, Baselines und Umgang mit Änderungen | 0.1 bis 0.4 | Pflichtinhalt Block 2 (KR-19, KR-20) |
+| Neues Kapitel 4: Event Storming als Ermittlungstechnik, KI-simuliert | 4.1 bis 4.8 | Ermittlung zu EZ-01 und EZ-02 (KR-10, KR-21, KR-23) |
+| Board und Vortragsansicht zum Event Storming als Webseiten | event-storming/ | Referat und Abgabe (KR-22, KR-24, KR-25) |
+| Verweis auf das entfernte Kapitel 99 ersetzt | 6.1 | Toter Verweis |
 
 ### Noch offen bis zur Baseline V0.2
 
-- Stakeholdermap mit mindestens sechs Stakeholdern, eingeordnet nach Einfluss und Interesse
-- Drei Ermittlungsziele und eine Annahmenliste mit Risiko
-- Event Storming als Ermittlungstechnik (Kapitel 4)
-- Glossar mit mindestens acht Begriffen (Kapitel 5)
-- Mindestens sechs funktionale und vier nicht-funktionale Anforderungen mit IDs (Kapitel 7)
-- ID-Schema und Ein-Satz-Änderungsnotiz
-- Mindestens zwei Anforderungen als «offen» mit klarer Frage
+- Glossar mit mindestens acht Begriffen (Kapitel 5). Die Begriffe aus dem Event Storming liegen bereit (siehe 4.7).
+- Mindestens sechs funktionale und vier nicht-funktionale Anforderungen mit IDs (Kapitel 7). Die Kandidaten aus dem Event Storming liegen bereit (siehe 4.7).
+- Mindestens zwei Anforderungen als «offen» mit klarer Frage. Kandidaten sind H4 (Sperre nach Ablauf) und H8 (Aufbewahrungsdauer).
 - Offene Story-Lücke aus KR-11
+- Optional: Sicht der Führungskraft mit einer echten Person prüfen (siehe 4.8)
+- Ein-Satz-Änderungsnotiz und Tag `v0.2` beim Setzen der Baseline
